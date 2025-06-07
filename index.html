@@ -47,20 +47,26 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.3);
       cursor: pointer;
     }
+    #callButtons {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 10px;
+    }
     #callButton, #hangupButton, #answerButton, #rejectButton {
       padding: 10px 20px;
       font-size: 16px;
-      margin: 8px auto;
       border: none;
       border-radius: 6px;
       cursor: pointer;
       width: 120px;
-      display: block;
     }
     #callButton { background-color: #28a745; color: white; }
     #hangupButton { background-color: #dc3545; color: white; }
     #answerButton { background-color: #007bff; color: white; }
     #rejectButton { background-color: #6c757d; color: white; }
+
     #callStatus {
       font-size: 16px;
       margin-top: 30px;
@@ -90,11 +96,12 @@
       <button class="dial-button" onclick="appendNumber('#')">#</button>
     </div>
 
-    <button id="callButton" onclick="makeCall()">📞 呼叫</button>
+    <div id="callButtons">
+      <button id="answerButton" onclick="answerCall()" style="display:none;">✅ 接听</button>
+      <button id="callButton" onclick="makeCall()">📞 呼叫</button>
+      <button id="rejectButton" onclick="rejectCall()" style="display:none;">❌ 拒接</button>
+    </div>
     <button id="hangupButton" onclick="hangupCall()" disabled>🛑 挂断</button>
-
-    <button id="answerButton" onclick="answerCall()" style="display:none;">✅ 接听</button>
-    <button id="rejectButton" onclick="rejectCall()" style="display:none;">❌ 拒接</button>
   </div>
 
   <div id="callStatus">未呼叫</div>
@@ -162,8 +169,8 @@
         const caller = session.remote_identity.uri.user;
         updateStatus("来电中: " + caller);
         playRingtone();
-        answerButton.style.display = 'block';
-        rejectButton.style.display = 'block';
+        answerButton.style.display = 'inline-block';
+        rejectButton.style.display = 'inline-block';
 
         session.on('ended', () => {
           updateStatus("通话结束");
