@@ -18,19 +18,19 @@
       text-align: center;
       padding: 8px;
       background-color: #fff;
-      border-radius: 8px;
+      border-radius: 6px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
     #dialer {
       display: grid;
       grid-template-columns: repeat(3, 60px);
       grid-gap: 8px;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
     }
     .dial-button {
       width: 60px;
       height: 60px;
-      font-size: 20px;
+      font-size: 18px;
       border: none;
       border-radius: 50%;
       background-color: #fff;
@@ -42,7 +42,7 @@
       font-size: 16px;
       margin: 5px;
       border: none;
-      border-radius: 8px;
+      border-radius: 6px;
       cursor: pointer;
       width: 100px;
     }
@@ -94,10 +94,7 @@
   <div id="callStatus">未呼叫</div>
 
   <audio id="audioRemote" autoplay></audio>
-  <audio id="ringtone" preload="auto" loop>
-    <source src="https://example.com/default_notification.mp3" type="audio/mpeg">
-    您的浏览器不支持音频播放。
-  </audio>
+  <audio id="ringtone" preload="auto" loop></audio>
 
   <!-- 引入 JsSIP 和适配库 -->
   <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
@@ -138,7 +135,7 @@
     const configuration = {
       sockets: [socket],
       uri: 'sip:9930@xin.anjre.cn',
-      password: 'Aa6363463@00',
+      password: 'Aa6363463@',
       display_name: '网页客户',
       session_timers: false,
       register: true
