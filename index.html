@@ -1,89 +1,70 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
 <title>网页拨号盘</title>
 <style>
-  :root{
-    --btn-size:60px;             /* 拨号键尺寸 */
-  }
+  :root{ --btn:60px; }
+
   body{
-    font-family:Arial, sans-serif;
+    font-family:Arial,Helvetica,sans-serif;
     background:#f0f0f0;
     margin:0;
     display:flex;
     flex-direction:column;
     align-items:center;
   }
-  /* ① 顶端输入框 */
-  #topArea{
-    width:100%;
-    max-width:320px;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    margin-top:12px;
-  }
+
+  /* 顶部输入框 + 拨号盘 */
+  #topArea{ margin-top:12px; text-align:center; }
   #numberDisplay{
-    font-size:24px;
-    width:100%;
-    text-align:center;
-    padding:10px;
-    background:#fff;
-    border-radius:8px;
+    font-size:22px; width:220px;
+    padding:8px; margin-bottom:10px;
+    background:#fff; border-radius:8px;
     box-shadow:0 2px 5px rgba(0,0,0,.1);
-    margin-bottom:10px;
   }
-  /* ② 拨号盘缩小 */
   #dialer{
-    display:grid;
-    grid-template-columns:repeat(3,var(--btn-size));
-    grid-gap:8px;
+    display:grid; grid-template-columns:repeat(3,var(--btn));
+    grid-gap:6px;
   }
   .dial-button{
-    width:var(--btn-size);
-    height:var(--btn-size);
-    font-size:22px;
-    border:none;
-    border-radius:50%;
-    background:#fff;
-    box-shadow:0 2px 5px rgba(0,0,0,.3);
+    width:var(--btn); height:var(--btn);
+    border:none; border-radius:50%;
+    background:#fff; font-size:20px;
+    box-shadow:0 2px 5px rgba(0,0,0,.25);
     cursor:pointer;
   }
-  /* 共用按钮样式 */
+
+  /* 底部常用按钮 */
   .action{
-    padding:12px 22px;
-    font-size:16px;
-    margin:12px 6px;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    width:110px;
+    padding:10px 22px; width:110px;
+    font-size:15px; border:none; border-radius:8px;
+    cursor:pointer; margin:14px 5px;
   }
   #callButton{background:#28a745;color:#fff;}
   #hangupButton{background:#dc3545;color:#fff;}
-  #answerButton{background:#007bff;color:#fff;position:fixed;right:24px;top:40%;display:none;}
-  #rejectButton{background:#6c757d;color:#fff;position:fixed;right:24px;top:52%;display:none;}
 
-  /* ③ 来电信息居中显示 */
-  #incomingInfo{
-    flex:1;                      /* 占据中间空白 */
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:22px;
-    color:#333;
-    text-align:center;
-    padding:0 15px;
+  /* 来电按钮固定右侧 */
+  #answerButton,#rejectButton{
+    position:fixed; right:20px; width:120px;
+    padding:12px 0; font-size:15px; display:none;
+    border:none; border-radius:8px; cursor:pointer;
   }
-  #callStatus{margin:8px 0;font-size:16px;color:#333;}
+  #answerButton{top:40%; background:#007bff;color:#fff;}
+  #rejectButton{top:54%; background:#6c757d;color:#fff;}
 
+  /* 中央来电 / 状态文字 */
+  #centerInfo{
+    flex:1; display:flex; align-items:center; justify-content:center;
+    text-align:center; font-size:18px; color:#333; padding:0 15px;
+  }
+  #callStatus{margin-top:8px;font-size:16px;color:#333;}
 </style>
 </head>
 <body>
 
-  <!-- 顶部区域：输入框 + 拨号盘 -->
+  <!-- 顶部区域 -->
   <div id="topArea">
     <div id="numberDisplay">请输入号码</div>
     <div id="dialer">
@@ -102,20 +83,23 @@
     </div>
   </div>
 
-  <!-- 中部：来电信息 / 通话状态 -->
-  <div id="incomingInfo">
+  <!-- 中心信息区 -->
+  <div id="centerInfo">
     <div>
+      <div id="incomingText"></div>
       <div id="callStatus">未呼叫</div>
     </div>
   </div>
 
-  <!-- 底部常规按钮 -->
-  <button id="callButton" class="action" onclick="makeCall()">📞 呼叫</button>
+  <!-- 底部常用按钮 -->
+  <button id="callButton"   class="action" onclick="makeCall()">📞 呼叫</button>
   <button id="hangupButton" class="action" onclick="hangupCall()" disabled>🛑 挂断</button>
-  <!-- 浮动接听 / 拒绝 -->
+
+  <!-- 右侧来电按钮 -->
   <button id="answerButton" class="action" onclick="answerCall()">✅ 接听</button>
   <button id="rejectButton" class="action" onclick="rejectCall()">❌ 拒接</button>
 
+  <!-- 媒体 -->
   <audio id="audioRemote" autoplay></audio>
   <audio id="ringtone" src="ringtone.mp3" preload="auto" loop></audio>
 
@@ -124,33 +108,33 @@
   <script src="https://cdn.jsdelivr.net/npm/jssip@3.0.10/dist/jssip.min.js"></script>
 
 <script>
-/* ---------- 变量 ---------- */
+/* ---- 变量 ---- */
 let number='';
 const numberDisplay=document.getElementById('numberDisplay');
-const callButton  =document.getElementById('callButton');
-const hangupButton=document.getElementById('hangupButton');
-const answerButton=document.getElementById('answerButton');
-const rejectButton=document.getElementById('rejectButton');
-const statusDisplay=document.getElementById('callStatus');
-const infoBox=document.getElementById('incomingInfo');
-const remoteAudio=document.getElementById('audioRemote');
-const ringtone   =document.getElementById('ringtone');
+const callBtn  =document.getElementById('callButton');
+const hangBtn  =document.getElementById('hangupButton');
+const ansBtn   =document.getElementById('answerButton');
+const rejBtn   =document.getElementById('rejectButton');
+const statusTx =document.getElementById('callStatus');
+const incomingTx=document.getElementById('incomingText');
+const audioRemote=document.getElementById('audioRemote');
+const ring=document.getElementById('ringtone');
 let session=null,isCalling=false;
 
-/* ---------- UI 辅助 ---------- */
-function appendNumber(n){number+=n;numberDisplay.textContent=number;}
-function updateStatus(t){statusDisplay.textContent=t;}
-function playRingtone(){ringtone.play().catch(()=>{});}
-function stopRingtone(){ringtone.pause();ringtone.currentTime=0;}
+/* ---- UI 辅助 ---- */
+function appendNumber(n){ number+=n; numberDisplay.textContent=number; }
+function updateStatus(t){ statusTx.textContent=t; }
+function playRing(){ ring.play().catch(()=>{}); }
+function stopRing(){ ring.pause(); ring.currentTime=0; }
 function resetUI(){
-  isCalling=false;number='';session=null;
+  isCalling=false; number=''; session=null;
   numberDisplay.textContent='请输入号码';
-  callButton.disabled=false;hangupButton.disabled=true;
-  answerButton.style.display=rejectButton.style.display='none';
-  infoBox.innerHTML=`<div><div id="callStatus">未呼叫</div></div>`;
+  updateStatus('未呼叫'); incomingTx.textContent='';
+  callBtn.disabled=false; hangBtn.disabled=true;
+  ansBtn.style.display = rejBtn.style.display = 'none';
 }
 
-/* ---------- JsSIP ---------- */
+/* ---- JsSIP 初始化 ---- */
 const socket=new JsSIP.WebSocketInterface('wss://xin.anjre.cn:8089/ws');
 const ua=new JsSIP.UA({
   sockets:[socket],
@@ -162,72 +146,73 @@ const ua=new JsSIP.UA({
 });
 ua.start();
 
-/* 来电处理 */
-ua.on('newRTCSession',data=>{
-  const newSession=data.session;
-  if(newSession.direction==='incoming'){
-    session=newSession;
-    const caller=newSession.remote_identity.uri.user||'未知';
-    const cid=newSession.remote_identity.display_name||'';
-    infoBox.textContent=`来电：${caller}  ${cid?'（CID: '+cid+'）':''}`;
-    updateStatus('来电中 …');
-    playRingtone();
-    answerButton.style.display='block';
-    rejectButton.style.display='block';
+/* ---- 来电 ---- */
+ua.on('newRTCSession', data=>{
+  const s=data.session;
+  if(s.direction!=='incoming') return;
+  session=s;
 
-    bindStreamEvents(newSession);
-    bindEndEvents(newSession);
-  }
+  const caller=s.remote_identity.uri.user || '未知';
+  const cid   =s.remote_identity.display_name || '未知';
+  incomingTx.textContent=`来电号码：${caller}\nOutbound CID：${cid}`;
+  updateStatus('来电中…');
+  playRing();
+
+  ansBtn.style.display=rejBtn.style.display='block';
+  bindStream(s); bindLifecycle(s);
 });
 
-function bindStreamEvents(s){
-  s.connection.addEventListener('track',e=>{
-    if(e.track.kind==='audio'){
-      const ms=new MediaStream();
-      ms.addTrack(e.track);
-      remoteAudio.srcObject=ms;
-      remoteAudio.play().catch(()=>{});
-    }
-  });
-}
-function bindEndEvents(s){
-  s.on('ended',   ()=>{updateStatus('通话结束');resetUI();});
-  s.on('failed',  ()=>{updateStatus('呼叫失败');resetUI();});
-  s.on('accepted',()=>{updateStatus('通话中');stopRingtone();});
-}
-
-/* 外呼 */
+/* ---- 外呼 ---- */
 function makeCall(){
   if(isCalling||!number) return;
-  isCalling=true;callButton.disabled=true;hangupButton.disabled=false;
-  infoBox.textContent='外呼 → '+number;
+  isCalling=true; callBtn.disabled=true; hangBtn.disabled=false;
+
+  incomingTx.textContent='外呼 → '+number;
   updateStatus('正在呼叫…');
 
   session=ua.call(`sip:${number}@xin.anjre.cn`,{
     mediaConstraints:{audio:true,video:false},
     rtcOfferConstraints:{offerToReceiveAudio:1,offerToReceiveVideo:0}
   });
-  bindStreamEvents(session);bindEndEvents(session);
+  bindStream(session); bindLifecycle(session);
+
   session.on('progress',()=>updateStatus('振铃中…'));
 }
 
-/* 接听 / 拒绝 / 挂断 */
-function answerCall(){
-  if(!session)return;
-  stopRingtone();
-  session.answer({mediaConstraints:{audio:true,video:false}});
-  answerButton.style.display=rejectButton.style.display='none';
-  hangupButton.disabled=false;
+/* ---- 媒体流 ---- */
+function bindStream(s){
+  s.connection.addEventListener('track', e=>{
+    if(e.track.kind==='audio'){
+      const ms=new MediaStream(); ms.addTrack(e.track);
+      audioRemote.srcObject=ms; audioRemote.play().catch(()=>{});
+    }
+  });
 }
-function rejectCall(){session&&session.terminate();}
-function hangupCall(){session&&session.terminate();}
 
-/* 绑定到全局 */
+/* ---- 生命周期 ---- */
+function bindLifecycle(s){
+  s.on('accepted',()=>{ updateStatus('通话中'); stopRing(); });
+  s.on('ended',  ()=>{ updateStatus('通话结束'); resetUI(); });
+  s.on('failed', ()=>{ updateStatus('呼叫失败'); resetUI(); });
+}
+
+/* ---- 操作按钮 ---- */
+function answerCall(){
+  if(!session) return;
+  stopRing();
+  session.answer({mediaConstraints:{audio:true,video:false}});
+  ansBtn.style.display=rejBtn.style.display='none';
+  hangBtn.disabled=false;
+}
+function rejectCall(){ session?.terminate(); }
+function hangupCall(){ session?.terminate(); }
+
+/* ---- 全局暴露 ---- */
 window.appendNumber=appendNumber;
-window.makeCall   =makeCall;
-window.answerCall =answerCall;
-window.rejectCall =rejectCall;
-window.hangupCall =hangupCall;
+window.makeCall=makeCall;
+window.answerCall=answerCall;
+window.rejectCall=rejectCall;
+window.hangupCall=hangupCall;
 </script>
 </body>
 </html>
