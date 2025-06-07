@@ -46,22 +46,10 @@
       cursor: pointer;
       width: 100px;
     }
-    #callButton {
-      background-color: #28a745;
-      color: white;
-    }
-    #hangupButton {
-      background-color: #dc3545;
-      color: white;
-    }
-    #answerButton {
-      background-color: #007bff;
-      color: white;
-    }
-    #rejectButton {
-      background-color: #6c757d;
-      color: white;
-    }
+    #callButton { background-color: #28a745; color: white; }
+    #hangupButton { background-color: #dc3545; color: white; }
+    #answerButton { background-color: #007bff; color: white; }
+    #rejectButton { background-color: #6c757d; color: white; }
     #callStatus {
       font-size: 16px;
       margin-top: 10px;
@@ -94,9 +82,11 @@
   <div id="callStatus">未呼叫</div>
 
   <audio id="audioRemote" autoplay></audio>
-  <audio id="ringtone" preload="auto" loop></audio>
 
-  <!-- 引入 JsSIP 和适配库 -->
+  <!-- ✅ 铃声链接已配置 -->
+  <audio id="ringtone" preload="auto" loop src="https://aa99889988.github.io/-/ringtone.mp3"></audio>
+
+  <!-- 引入 JsSIP 和 WebRTC 适配 -->
   <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jssip@3.0.10/dist/jssip.min.js"></script>
 
@@ -156,14 +146,17 @@
 
         session.on('ended', () => {
           updateStatus("通话结束");
+          stopRingtone();
           resetUI();
         });
         session.on('failed', (e) => {
           updateStatus("呼叫失败");
+          stopRingtone();
           console.error('呼叫失败:', e);
           resetUI();
         });
         session.on('accepted', () => {
+          stopRingtone();
           updateStatus("通话中");
         });
       }
