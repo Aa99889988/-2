@@ -126,7 +126,8 @@
       statusDisplay.textContent = text;
     }
 
-    function playRingtone() {
+大 头, [2025/6/6 22:04]
+function playRingtone() {
       ringtone.play().catch(err => console.warn('铃声播放失败:', err));
     }
 
@@ -139,7 +140,7 @@
     const configuration = {
       sockets: [socket],
       uri: 'sip:9930@xin.anjre.cn',
-      password: 'Aa636346300@',
+      password: 'Aa6363463@',
       display_name: '网页客户',
       session_timers: false,
       register: true
@@ -181,7 +182,7 @@
       hangupButton.disabled = false;
       updateStatus("正在呼叫...");
 
-      session = ua.call(`sip:${number}@xin.anjre.cn`, {
+      session = ua.call(sip:${number}@xin.anjre.cn, {
         mediaConstraints: { audio: true, video: false },
         rtcOfferConstraints: {
           offerToReceiveAudio: 1,
@@ -247,20 +248,6 @@
       number = '';
       numberDisplay.textContent = '请输入号码';
     }
-
-    <!-- 防止右键和F12 -->
-    document.addEventListener('contextmenu', event => event.preventDefault());
-    document.addEventListener('keydown', function(event) {
-      // 禁止F12、Ctrl+Shift+I/J/C、Ctrl+U
-      if (
-        event.key === 'F12' ||
-        (event.ctrlKey && event.shiftKey && ['I', 'J', 'C'].includes(event.key.toUpperCase())) ||
-        (event.ctrlKey && event.key.toUpperCase() === 'U')
-      ) {
-        event.preventDefault();
-        alert('禁止此操作！');
-      }
-    });
   </script>
 </body>
 </html>
