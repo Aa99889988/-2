@@ -236,6 +236,37 @@
       number = '';
       numberDisplay.textContent = '请输入号码';
     }
+  <div style="margin-top: 40px; text-align: center;">
+  <button onclick="enableRingtone()" style="padding: 12px 24px; font-size: 18px; background-color: orange; color: white; border: none; border-radius: 8px;">
+    🔔 点击启用来电铃声提醒
+  </button>
+  <div style="margin-top: 10px; font-size: 14px; color: gray;">* 请在使用前点击此按钮以启用音频权限</div>
+</div>
+
+<script>
+  function enableRingtone() {
+    const ringtone = document.getElementById('ringtone');
+    ringtone.play().then(() => {
+      alert("铃声提醒已启用，来电将有提示音");
+    }).catch(err => {
+      alert("需要用户点击页面启用铃声权限，请再试一次");
+      console.warn("音频权限激活失败：", err);
+    });
+  }
+
+  // 🛡️ 防止右键和开发者工具
+  document.addEventListener('contextmenu', event => event.preventDefault()); // 屏蔽右键
+  document.addEventListener('keydown', function (event) {
+    if (
+      event.key === 'F12' ||                                // F12
+      (event.ctrlKey && event.shiftKey && event.key === 'I') || // Ctrl+Shift+I
+      (event.ctrlKey && event.shiftKey && event.key === 'J') || // Ctrl+Shift+J
+      (event.ctrlKey && event.key === 'U')                     // Ctrl+U
+    ) {
+      event.preventDefault();
+      alert("此操作已被禁用");
+    }
+  });  
   </script>
 </body>
 </html>
