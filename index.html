@@ -126,8 +126,7 @@
       statusDisplay.textContent = text;
     }
 
-大 头, [2025/6/6 22:04]
-function playRingtone() {
+    function playRingtone() {
       ringtone.play().catch(err => console.warn('铃声播放失败:', err));
     }
 
@@ -140,7 +139,7 @@ function playRingtone() {
     const configuration = {
       sockets: [socket],
       uri: 'sip:9930@xin.anjre.cn',
-      password: 'Aa636346300@',
+      password: 'Aa6363463@',
       display_name: '网页客户',
       session_timers: false,
       register: true
@@ -182,7 +181,7 @@ function playRingtone() {
       hangupButton.disabled = false;
       updateStatus("正在呼叫...");
 
-      session = ua.call(sip:${number}@xin.anjre.cn, {
+      session = ua.call(`sip:${number}@xin.anjre.cn`, {
         mediaConstraints: { audio: true, video: false },
         rtcOfferConstraints: {
           offerToReceiveAudio: 1,
