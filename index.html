@@ -84,7 +84,6 @@
   <audio id="audioRemote" autoplay></audio>
   <audio id="ringtone" preload="auto" loop src="https://aa99889988.github.io/-/ringtone.mp3"></audio>
 
-  <!-- 来电铃声权限启用按钮 -->
   <div style="margin-top: 40px; text-align: center;">
     <button onclick="enableRingtone()" style="padding: 12px 24px; font-size: 18px; background-color: orange; color: white; border: none; border-radius: 8px;">
       🔔 点击启用来电铃声提醒
@@ -92,7 +91,6 @@
     <div style="margin-top: 10px; font-size: 14px; color: gray;">* 请在使用前点击此按钮以启用音频权限</div>
   </div>
 
-  <!-- 引入 JsSIP 和 WebRTC -->
   <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jssip@3.0.10/dist/jssip.min.js"></script>
 
@@ -243,16 +241,21 @@
       numberDisplay.textContent = '请输入号码';
     }
 
+    // ✅ 正确激活铃声权限，不真正播放铃声
     function enableRingtone() {
+      ringtone.volume = 0;
       ringtone.play().then(() => {
-        alert("铃声提醒已启用，来电将有提示音");
+        ringtone.pause();
+        ringtone.currentTime = 0;
+        ringtone.volume = 1;
+        alert("铃声提醒已启用，来电时将播放提示音");
       }).catch(err => {
-        alert("需要用户点击页面启用铃声权限，请再试一次");
+        alert("需要用户点击页面启用音频权限，请再试一次");
         console.warn("音频权限激活失败：", err);
       });
     }
 
-    // 防止右键和开发者工具
+    // 🛡️ 防止右键和开发者工具
     document.addEventListener('contextmenu', event => event.preventDefault());
     document.addEventListener('keydown', function (event) {
       if (
