@@ -10,6 +10,14 @@
       background-color: #f0f0f0;
       margin: 0;
       padding: 20px;
+      text-align: center;
+    }
+    #main {
+      display: inline-block;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
     #numberDisplay {
       font-size: 20px;
@@ -20,11 +28,13 @@
       background-color: #fff;
       border-radius: 6px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin: 0 auto 15px;
     }
     #dialer {
       display: grid;
       grid-template-columns: repeat(3, 60px);
       grid-gap: 8px;
+      justify-content: center;
       margin-bottom: 15px;
     }
     .dial-button {
@@ -40,11 +50,12 @@
     #callButton, #hangupButton, #answerButton, #rejectButton {
       padding: 10px 20px;
       font-size: 16px;
-      margin: 5px;
+      margin: 8px auto;
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      width: 100px;
+      width: 120px;
+      display: block;
     }
     #callButton { background-color: #28a745; color: white; }
     #hangupButton { background-color: #dc3545; color: white; }
@@ -52,48 +63,54 @@
     #rejectButton { background-color: #6c757d; color: white; }
     #callStatus {
       font-size: 16px;
-      margin-top: 10px;
+      margin-top: 30px;
       color: #333;
+    }
+    #ring-enable {
+      margin-top: 40px;
     }
   </style>
 </head>
 <body>
 
-  <div id="numberDisplay">请输入号码</div>
-  <div id="dialer">
-    <button class="dial-button" onclick="appendNumber('1')">1</button>
-    <button class="dial-button" onclick="appendNumber('2')">2</button>
-    <button class="dial-button" onclick="appendNumber('3')">3</button>
-    <button class="dial-button" onclick="appendNumber('4')">4</button>
-    <button class="dial-button" onclick="appendNumber('5')">5</button>
-    <button class="dial-button" onclick="appendNumber('6')">6</button>
-    <button class="dial-button" onclick="appendNumber('7')">7</button>
-    <button class="dial-button" onclick="appendNumber('8')">8</button>
-    <button class="dial-button" onclick="appendNumber('9')">9</button>
-    <button class="dial-button" onclick="appendNumber('*')">*</button>
-    <button class="dial-button" onclick="appendNumber('0')">0</button>
-    <button class="dial-button" onclick="appendNumber('#')">#</button>
+  <div id="main">
+    <div id="numberDisplay">请输入号码</div>
+    <div id="dialer">
+      <button class="dial-button" onclick="appendNumber('1')">1</button>
+      <button class="dial-button" onclick="appendNumber('2')">2</button>
+      <button class="dial-button" onclick="appendNumber('3')">3</button>
+      <button class="dial-button" onclick="appendNumber('4')">4</button>
+      <button class="dial-button" onclick="appendNumber('5')">5</button>
+      <button class="dial-button" onclick="appendNumber('6')">6</button>
+      <button class="dial-button" onclick="appendNumber('7')">7</button>
+      <button class="dial-button" onclick="appendNumber('8')">8</button>
+      <button class="dial-button" onclick="appendNumber('9')">9</button>
+      <button class="dial-button" onclick="appendNumber('*')">*</button>
+      <button class="dial-button" onclick="appendNumber('0')">0</button>
+      <button class="dial-button" onclick="appendNumber('#')">#</button>
+    </div>
+
+    <button id="callButton" onclick="makeCall()">📞 呼叫</button>
+    <button id="hangupButton" onclick="hangupCall()" disabled>🛑 挂断</button>
+
+    <button id="answerButton" onclick="answerCall()" style="display:none;">✅ 接听</button>
+    <button id="rejectButton" onclick="rejectCall()" style="display:none;">❌ 拒接</button>
   </div>
 
-  <button id="callButton" onclick="makeCall()">📞 呼叫</button>
-  <button id="hangupButton" onclick="hangupCall()" disabled>🛑 挂断</button>
-  <button id="answerButton" onclick="answerCall()" style="display:none;">✅ 接听</button>
-  <button id="rejectButton" onclick="rejectCall()" style="display:none;">❌ 拒接</button>
   <div id="callStatus">未呼叫</div>
 
-  <audio id="audioRemote" autoplay></audio>
-  <audio id="ringtone" preload="auto" loop src="https://aa99889988.github.io/-/ringtone.mp3"></audio>
-
-  <div style="margin-top: 40px; text-align: center;">
+  <div id="ring-enable">
     <button onclick="enableRingtone()" style="padding: 12px 24px; font-size: 18px; background-color: orange; color: white; border: none; border-radius: 8px;">
       🔔 点击启用来电铃声提醒
     </button>
     <div style="margin-top: 10px; font-size: 14px; color: gray;">* 请在使用前点击此按钮以启用音频权限</div>
   </div>
 
+  <audio id="audioRemote" autoplay></audio>
+  <audio id="ringtone" preload="auto" loop src="https://aa99889988.github.io/-/ringtone.mp3"></audio>
+
   <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jssip@3.0.10/dist/jssip.min.js"></script>
-
   <script>
     let number = '';
     const numberDisplay = document.getElementById('numberDisplay');
@@ -145,8 +162,8 @@
         const caller = session.remote_identity.uri.user;
         updateStatus("来电中: " + caller);
         playRingtone();
-        answerButton.style.display = 'inline-block';
-        rejectButton.style.display = 'inline-block';
+        answerButton.style.display = 'block';
+        rejectButton.style.display = 'block';
 
         session.on('ended', () => {
           updateStatus("通话结束");
@@ -168,7 +185,6 @@
 
     window.makeCall = function () {
       if (isCalling || number === '') return;
-
       isCalling = true;
       callButton.disabled = true;
       hangupButton.disabled = false;
@@ -241,7 +257,6 @@
       numberDisplay.textContent = '请输入号码';
     }
 
-    // ✅ 正确激活铃声权限，不真正播放铃声
     function enableRingtone() {
       ringtone.volume = 0;
       ringtone.play().then(() => {
@@ -255,7 +270,7 @@
       });
     }
 
-    // 🛡️ 防止右键和开发者工具
+    // 防止调试
     document.addEventListener('contextmenu', event => event.preventDefault());
     document.addEventListener('keydown', function (event) {
       if (
